@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Herramientas Culqi</title>
+    <title>Mis Herramientas Privadas</title>
     <style>
         /* Estilos generales */
         body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; color: #333; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -63,18 +63,21 @@
         /* Capa oscura para el menú en móvil */
         #mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 90; backdrop-filter: blur(2px); }
 
-        /* Diseño Responsive */
+        /* =========================================
+           DISEÑO RESPONSIVE PARA MÓVILES (ej. Xiaomi)
+           ========================================= */
         @media (max-width: 768px) {
             #sidebar {
-                position: fixed; 
+                position: fixed; /* Flota sobre el contenido */
                 height: 100%;
                 top: 0;
-                left: -280px; 
-                margin-left: 0 !important; 
+                left: -280px; /* Oculto por defecto a la izquierda */
+                margin-left: 0 !important; /* Anula el margin-left de escritorio */
             }
             #sidebar.mobile-open { left: 0; box-shadow: 2px 0 15px rgba(0,0,0,0.5); }
             #mobile-overlay.active { display: block; }
             
+            /* Ajustes finos de tamaño para celular */
             .header h3 { font-size: 1rem; }
             .logout-btn { font-size: 12px; padding: 6px 10px; }
             .toggle-btn { font-size: 24px; color: #2c3e50; }
@@ -85,7 +88,7 @@
 
     <div id="login-screen">
         <div class="login-box">
-            <h2>Acceso Privado Culqi</h2>
+            <h2>Acceso Privado</h2>
             <div id="loading-spinner" class="loader"></div>
             <input type="password" id="password" placeholder="Contraseña" onkeypress="if(event.key === 'Enter') unlock()">
             <br>
@@ -106,7 +109,8 @@
                 <button id="sort-btn" onclick="toggleSort()" title="Ordenar alfabéticamente">A-Z ↓</button>
             </div>
 
-            <div id="tools-list"></div>
+            <div id="tools-list">
+                </div>
         </div>
         
         <div id="content-area">
@@ -122,21 +126,21 @@
     </div>
 
     <script>
-        // URL de tu aplicación de Google Script actualizada e integrada
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxSOYIFI1d8eIoSaG2dktuPFQRh16y7yBVGGyuaX-V95XhsoxAGtOahVimhbnRlv9P30Q/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw4dFtd4xGLCLdrdrc5xl6JSNMcpTrd9DCHql47e_QtsmLjs746zrrHNjNyDExHH79Z/exec";
 
         let globalTools = [];
         let isSortAscending = true;
 
+        // Configurar el ícono del botón al cargar y al cambiar el tamaño de la ventana
         function updateToggleIcon() {
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('toggle-sidebar');
             const isMobile = window.innerWidth <= 768;
 
             if (isMobile) {
-                toggleBtn.innerHTML = "☰"; 
+                toggleBtn.innerHTML = "☰"; // Ícono de hamburguesa en celular
             } else {
-                toggleBtn.innerHTML = sidebar.classList.contains('collapsed') ? "❯" : "❮"; 
+                toggleBtn.innerHTML = sidebar.classList.contains('collapsed') ? "❯" : "❮"; // Flechas en PC
             }
         }
         window.addEventListener('resize', updateToggleIcon);
@@ -166,7 +170,7 @@
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('dashboard').style.display = 'flex';
                     
-                    updateToggleIcon(); 
+                    updateToggleIcon(); // Inicializar el ícono correcto
                     globalTools = result.tools;
                     filterAndSortTools(true); 
 
@@ -176,7 +180,7 @@
                     spinner.style.display = "none";
                 }
             } catch (error) {
-                errorMsg.innerText = "Error de conexión o de ejecución en Apps Script.";
+                errorMsg.innerText = "Error de conexión. Revisa tu internet.";
                 btn.style.display = "block";
                 spinner.style.display = "none";
                 console.error(error);
@@ -231,6 +235,7 @@
                     title.innerText = tool.name;
                     viewer.srcdoc = tool.content;
 
+                    // Si estamos en celular, cerramos el menú automáticamente al hacer clic en una herramienta
                     if (window.innerWidth <= 768) {
                         toggleSidebar();
                     }
