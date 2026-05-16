@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -20,7 +19,7 @@
         /* Panel Principal */
         #dashboard { display: none; height: 100vh; width: 100vw; position: relative; }
         
-        /* Menú lateral (Desktop por defecto) */
+        /* Menú lateral */
         #sidebar { 
             width: 280px; min-width: 280px; background: #2c3e50; color: white; padding: 20px; 
             overflow-y: auto; display: flex; flex-direction: column; box-sizing: border-box;
@@ -31,26 +30,31 @@
         
         #sidebar h2 { margin-top: 0; font-size: 1.2rem; border-bottom: 1px solid #34495e; padding-bottom: 10px; margin-bottom: 15px; }
         
-        /* Controles de Búsqueda y Orden */
+        /* Controles de Búsqueda */
         .sidebar-controls { display: flex; gap: 8px; margin-bottom: 15px; }
         #search-input { flex-grow: 1; padding: 10px; border: none; border-radius: 5px; background: #1a252f; color: white; outline: none; font-size: 14px; }
         #search-input::placeholder { color: #95a5a6; }
         #sort-btn { padding: 10px 12px; border: none; border-radius: 5px; background: #1a252f; color: #95a5a6; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s; }
         #sort-btn:hover { background: #34495e; color: white; }
 
-        .tool-btn { display: block; width: 100%; text-align: left; background: none; color: #ecf0f1; border: none; padding: 12px; margin-bottom: 5px; border-radius: 5px; cursor: pointer; transition: 0.2s; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .tool-btn:hover, .tool-btn.active { background: #34495e; font-weight: bold; border-left: 4px solid #3498db; padding-left: 8px; }
+        /* Acordeón de Carpetas */
+        .folder-header { background: #1a252f; color: #bdc3c7; padding: 10px; margin-top: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; user-select: none; }
+        .folder-header:hover { background: #34495e; color: white; }
+        .folder-content { display: flex; flex-direction: column; padding-left: 8px; margin-top: 5px; border-left: 2px solid #34495e; margin-left: 5px; }
+
+        /* Botones de herramientas */
+        .tool-btn { display: block; width: 100%; text-align: left; background: none; color: #ecf0f1; border: none; padding: 10px; margin-bottom: 2px; border-radius: 5px; cursor: pointer; transition: 0.2s; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tool-btn:hover, .tool-btn.active { background: #34495e; font-weight: bold; color: white; }
         
-        /* Contenedor de la herramienta (iframe) */
+        /* Área de contenido */
         #content-area { flex-grow: 1; display: flex; flex-direction: column; background: #121212; width: 100%; min-width: 0; }
         iframe { flex-grow: 1; border: none; width: 100%; height: 100%; background: #ffffff; } 
         
-        /* Cabecera (Header) */
+        /* Cabecera */
         .header { background: white; padding: 12px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 10; box-sizing: border-box; width: 100%; }
         .header-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
         .header h3 { margin: 0; color: #2c3e50; font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* Botón de ocultar barra (Toggle) */
         .toggle-btn { background: none; border: none; color: #7f8c8d; font-size: 22px; cursor: pointer; padding: 0 5px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .toggle-btn:hover { color: #2c3e50; }
         
@@ -61,21 +65,14 @@
         .loader { display: none; border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Capa oscura para el menú en móvil */
+        /* Capa oscura para el móvil */
         #mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 90; backdrop-filter: blur(2px); }
 
         /* Diseño Responsive */
         @media (max-width: 768px) {
-            #sidebar {
-                position: fixed; 
-                height: 100%;
-                top: 0;
-                left: -280px; 
-                margin-left: 0 !important; 
-            }
+            #sidebar { position: fixed; height: 100%; top: 0; left: -280px; margin-left: 0 !important; }
             #sidebar.mobile-open { left: 0; box-shadow: 2px 0 15px rgba(0,0,0,0.5); }
             #mobile-overlay.active { display: block; }
-            
             .header h3 { font-size: 1rem; }
             .logout-btn { font-size: 12px; padding: 6px 10px; }
             .toggle-btn { font-size: 24px; color: #2c3e50; }
@@ -96,7 +93,6 @@
     </div>
 
     <div id="dashboard">
-        
         <div id="mobile-overlay" onclick="toggleSidebar()"></div>
 
         <div id="sidebar">
@@ -123,7 +119,6 @@
     </div>
 
     <script>
-        // URL de tu aplicación de Google Script actualizada e integrada
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxSOYIFI1d8eIoSaG2dktuPFQRh16y7yBVGGyuaX-V95XhsoxAGtOahVimhbnRlv9P30Q/exec";
 
         let globalTools = [];
@@ -194,6 +189,7 @@
         function filterAndSortTools(autoClickFirst) {
             const searchQuery = document.getElementById('search-input').value.toLowerCase();
             
+            // Filtramos basándonos en el nombre global (con todo y carpeta)
             let filteredTools = globalTools.filter(tool => tool.name.toLowerCase().includes(searchQuery));
             
             filteredTools.sort((a, b) => {
@@ -221,27 +217,74 @@
                 return;
             }
 
-            toolsToRender.forEach((tool, index) => {
-                let btn = document.createElement('button');
-                btn.className = "tool-btn";
-                btn.innerText = "📄 " + tool.name; 
+            // --- LÓGICA DE AGRUPACIÓN POR CARPETAS ---
+            const groups = {};
+            
+            toolsToRender.forEach(tool => {
+                let folder = "Raíz (General)";
+                let displayName = tool.name;
                 
-                btn.onclick = function() {
-                    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    title.innerText = tool.name;
-                    viewer.srcdoc = tool.content;
-
-                    if (window.innerWidth <= 768) {
-                        toggleSidebar();
-                    }
-                };
-                
-                list.appendChild(btn);
-
-                if(autoClickFirst && index === 0) {
-                    btn.click();
+                // Extraemos el nombre de la carpeta (lo que está entre corchetes)
+                const match = tool.name.match(/^\[(.*?)\]\s*(.*)/);
+                if (match) {
+                    folder = match[1];
+                    displayName = match[2]; // Nombre limpio, sin los corchetes
                 }
+
+                if (!groups[folder]) groups[folder] = [];
+                groups[folder].push({ original: tool, displayName: displayName });
+            });
+
+            // Ordenamos el nombre de las carpetas alfabéticamente
+            const sortedFolders = Object.keys(groups).sort();
+            let firstToolRendered = false;
+
+            sortedFolders.forEach(folder => {
+                // Crear el contenedor/botón de la carpeta
+                const folderHeader = document.createElement('div');
+                folderHeader.className = "folder-header";
+                folderHeader.innerHTML = `📁 ${folder} <span class="folder-icon">▼</span>`;
+                
+                const folderContent = document.createElement('div');
+                folderContent.className = "folder-content";
+
+                // Lógica para desplegar/ocultar
+                folderHeader.onclick = () => {
+                    const isHidden = folderContent.style.display === 'none';
+                    folderContent.style.display = isHidden ? 'flex' : 'none';
+                    folderHeader.querySelector('.folder-icon').innerText = isHidden ? '▼' : '▶';
+                };
+
+                // Añadir los botones dentro de cada carpeta
+                groups[folder].forEach(item => {
+                    let btn = document.createElement('button');
+                    btn.className = "tool-btn";
+                    btn.innerText = "📄 " + item.displayName;
+                    btn.title = item.displayName; // Muestra el nombre completo si pasas el ratón
+                    
+                    btn.onclick = function() {
+                        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        // Título superior: mostramos el limpio
+                        title.innerText = item.displayName;
+                        viewer.srcdoc = item.original.content;
+
+                        if (window.innerWidth <= 768) {
+                            toggleSidebar();
+                        }
+                    };
+                    
+                    folderContent.appendChild(btn);
+
+                    // Clic automático al primero al cargar
+                    if(autoClickFirst && !firstToolRendered) {
+                        btn.click();
+                        firstToolRendered = true;
+                    }
+                });
+
+                list.appendChild(folderHeader);
+                list.appendChild(folderContent);
             });
         }
 
