@@ -1,1 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Herramientas Culqi</title>
+    <style>
+        /* Estilos generales */
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; color: #333; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Pantalla de Login */
+        #login-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #2c3e50; color: white; padding: 20px; box-sizing: border-box; }
+        .login-box { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 10px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); backdrop-filter: blur(5px); width: 100%; max-width: 350px; }
+        input[type="password"] { padding: 12px; width: 100%; box-sizing: border-box; border: none; border-radius: 5px; margin-bottom: 15px; outline: none; font-size: 16px; text-align: center; letter-spacing: 2px; }
+        .btn-primary { padding: 12px 20px; width: 100%; border: none; border-radius: 5px; background: #3498db; color: white; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 15px; }
+        .btn-primary:hover { background: #2980b9; }
+        #error-msg { color: #e74c3c; margin-top: 10px; font-size: 14px; min-height: 20px; font-weight: bold; }
 
+        /* Panel Principal */
+        #dashboard { display: none; height: 100vh; width: 100vw; position: relative; }
+        
+        /* Menú lateral (Desktop por defecto) */
+        #sidebar { 
+            width: 280px; min-width: 280px; background: #2c3e50; color: white; padding: 20px; 
+            overflow-y: auto; display: flex; flex-direction: column; box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
+        #sidebar.collapsed { margin-left: -280px; } 
+        
+        #sidebar h2 { margin-top: 0; font-size: 1.2rem; border-bottom: 1px solid #34495e; padding-bottom: 10px; margin-bottom: 15px; }
+        
+        /* Controles de Búsqueda y Orden */
+        .sidebar-controls { display: flex; gap: 8px; margin-bottom: 15px; }
+        #search-input { flex-grow: 1; padding: 10px; border: none; border-radius: 5px; background: #1a252f; color: white; outline: none; font-size: 14px; }
+        #search-input::placeholder { color: #95a5a6; }
+        #sort-btn { padding: 10px 12px; border: none; border-radius: 5px; background: #1a252f; color: #95a5a6; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s; }
+        #sort-btn:hover { background: #34495e; color: white; }
+
+        .tool-btn { display: block; width: 100%; text-align: left; background: none; color: #ecf0f1; border: none; padding: 12px; margin-bottom: 5px; border-radius: 5px; cursor: pointer; transition: 0.2s; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tool-btn:hover, .tool-btn.active { background: #34495e; font-weight: bold; border-left: 4px solid #3498db; padding-left: 8px; }
+        
+        /* Contenedor de la herramienta (iframe) */
+        #content-area { flex-grow: 1; display: flex; flex-direction: column; background: #121212; width: 100%; min-width: 0; }
+        iframe { flex-grow: 1; border: none; width: 100%; height: 100%; background: #ffffff; } 
+        
+        /* Cabecera (Header) */
+        .header { background: white; padding: 12px 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 10; box-sizing: border-box; width: 100%; }
+        .header-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+        .header h3 { margin: 0; color: #2c3e50; font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Botón de ocultar barra (Toggle) */
+        .toggle-btn { background: none; border: none; color: #7f8c8d; font-size: 22px; cursor: pointer; padding: 0 5px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .toggle-btn:hover { color: #2c3e50; }
+        
+        .logout-btn { background: #e74c3c; padding: 8px 15px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; font-size: 13px; white-space: nowrap; }
+        .logout-btn:hover { background: #c0392b; }
+        
+        /* Animación de carga */
+        .loader { display: none; border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Capa oscura para el menú en móvil */
+        #mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 90; backdrop-filter: blur(2px); }
+
+        /* Diseño Responsive */
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed; 
+                height: 100%;
+                top: 0;
+                left: -280px; 
+                margin-left: 0 !important; 
+            }
+            #sidebar.mobile-open { left: 0; box-shadow: 2px 0 15px rgba(0,0,0,0.5); }
+            #mobile-overlay.active { display: block; }
+            
+            .header h3 { font-size: 1rem; }
+            .logout-btn { font-size: 12px; padding: 6px 10px; }
+            .toggle-btn { font-size: 24px; color: #2c3e50; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Acceso Privado Culqi</h2>
+            <div id="loading-spinner" class="loader"></div>
+            <input type="password" id="password" placeholder="Contraseña" onkeypress="if(event.key === 'Enter') unlock()">
+            <br>
+            <button class="btn-primary" onclick="unlock()" id="btn-login">Desbloquear</button>
+            <div id="error-msg"></div>
+        </div>
+    </div>
+
+    <div id="dashboard">
+        
+        <div id="mobile-overlay" onclick="toggleSidebar()"></div>
+
+        <div id="sidebar">
+            <h2>Mis Herramientas</h2>
+            
+            <div class="sidebar-controls">
+                <input type="text" id="search-input" placeholder="Buscar..." oninput="filterAndSortTools(false)">
+                <button id="sort-btn" onclick="toggleSort()" title="Ordenar alfabéticamente">A-Z ↓</button>
+            </div>
+
+            <div id="tools-list"></div>
+        </div>
+        
+        <div id="content-area">
+            <div class="header">
+                <div class="header-left">
+                    <button class="toggle-btn" id="toggle-sidebar" onclick="toggleSidebar()" title="Menú"></button>
+                    <h3 id="current-tool-title">Cargando...</h3>
+                </div>
+                <button class="logout-btn" onclick="location.reload()">Cerrar Sesión</button>
+            </div>
+            <iframe id="tool-viewer"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // URL de tu aplicación de Google Script actualizada e integrada
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxSOYIFI1d8eIoSaG2dktuPFQRh16y7yBVGGyuaX-V95XhsoxAGtOahVimhbnRlv9P30Q/exec";
+
+        let globalTools = [];
+        let isSortAscending = true;
+
+        function updateToggleIcon() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('toggle-sidebar');
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                toggleBtn.innerHTML = "☰"; 
+            } else {
+                toggleBtn.innerHTML = sidebar.classList.contains('collapsed') ? "❯" : "❮"; 
+            }
+        }
+        window.addEventListener('resize', updateToggleIcon);
+
+        async function unlock() {
+            const passInput = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-msg');
+            const btn = document.getElementById('btn-login');
+            const spinner = document.getElementById('loading-spinner');
+            
+            if(!passInput) return;
+
+            btn.style.display = "none";
+            spinner.style.display = "block";
+            errorMsg.innerText = "";
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ password: passInput })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'flex';
+                    
+                    updateToggleIcon(); 
+                    globalTools = result.tools;
+                    filterAndSortTools(true); 
+
+                } else {
+                    errorMsg.innerText = result.error || "Contraseña incorrecta";
+                    btn.style.display = "block";
+                    spinner.style.display = "none";
+                }
+            } catch (error) {
+                errorMsg.innerText = "Error de conexión o de ejecución en Apps Script.";
+                btn.style.display = "block";
+                spinner.style.display = "none";
+                console.error(error);
+            }
+        }
+
+        function toggleSort() {
+            isSortAscending = !isSortAscending;
+            const sortBtn = document.getElementById('sort-btn');
+            sortBtn.innerText = isSortAscending ? "A-Z ↓" : "Z-A ↑";
+            filterAndSortTools(false);
+        }
+
+        function filterAndSortTools(autoClickFirst) {
+            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            
+            let filteredTools = globalTools.filter(tool => tool.name.toLowerCase().includes(searchQuery));
+            
+            filteredTools.sort((a, b) => {
+                let nameA = a.name.toLowerCase();
+                let nameB = b.name.toLowerCase();
+                if (nameA < nameB) return isSortAscending ? -1 : 1;
+                if (nameA > nameB) return isSortAscending ? 1 : -1;
+                return 0;
+            });
+
+            renderToolsList(filteredTools, autoClickFirst);
+        }
+
+        function renderToolsList(toolsToRender, autoClickFirst) {
+            const list = document.getElementById('tools-list');
+            const viewer = document.getElementById('tool-viewer');
+            const title = document.getElementById('current-tool-title');
+            
+            list.innerHTML = ""; 
+
+            if(toolsToRender.length === 0) {
+                list.innerHTML = "<p style='font-size:13px; color:#95a5a6; text-align:center; margin-top:20px;'>No se encontraron resultados.</p>";
+                title.innerText = "Sin resultados";
+                viewer.srcdoc = "";
+                return;
+            }
+
+            toolsToRender.forEach((tool, index) => {
+                let btn = document.createElement('button');
+                btn.className = "tool-btn";
+                btn.innerText = "📄 " + tool.name; 
+                
+                btn.onclick = function() {
+                    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    title.innerText = tool.name;
+                    viewer.srcdoc = tool.content;
+
+                    if (window.innerWidth <= 768) {
+                        toggleSidebar();
+                    }
+                };
+                
+                list.appendChild(btn);
+
+                if(autoClickFirst && index === 0) {
+                    btn.click();
+                }
+            });
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+            }
+            updateToggleIcon();
+        }
+    </script>
+</body>
+</html>
